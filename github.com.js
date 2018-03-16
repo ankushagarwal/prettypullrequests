@@ -8,10 +8,30 @@ var repositoryAuthor;
 var autoCollapseExpressions;
 
 function htmlShouldBeInjected() {
-  return $('a[href$="/files"].tabnav-tab.selected').length > 0 && $('.pretty-pull-requests-inserted').length <= 0;
+  // return $('a[href$="/files"].tabnav-tab.selected').length > 0 && $('.pretty-pull-requests-inserted').length <= 0;
+  return window.location.href.endsWith("/commits") && $('.pretty-pull-requests-commit').length <= 0;
 }
 
+function getCommit(s) {
+    var split = s.split("/");
+    return split[split.length - 1];
+}
+
+function getCompare(s) {
+    var split = s.split("/");
+    return split[0] + "/" + split[1] + "/" + split[2] + "/" + split[3] + "/" + split[4] + "/compare/";
+}
 function injectHtml() {
+  $('<input class="pretty-pull-requests-commit" type="checkbox">').insertAfter('.commit-links-group.BtnGroup');
+  $('<button type="button" id="pretty-pull-requests-commit-compare" class="btn btn-sm">Compare</button>').insertAfter(".gh-header-actions :last-child");
+  $( "#pretty-pull-requests-commit-compare" ).on( "click", function() {
+    var commits = $( ".pretty-pull-requests-commit:checked" ).next();
+    if (commits.length == 2) {
+        var commit1 = getCommit(commits[0].href);
+        var commit2 = getCommit(commits[1].href);
+        window.open(getCompare(commits[0].href) + commit1 + "..." + commit2);
+    }
+  });
   $('<span class="pretty-pull-requests collapse-lines">' +
         '<label><input type="checkbox" class="js-collapse-additions" checked="yes">+</label>' +
         '<label><input type="checkbox" class="js-collapse-deletions" checked="yes">-</label>' +
